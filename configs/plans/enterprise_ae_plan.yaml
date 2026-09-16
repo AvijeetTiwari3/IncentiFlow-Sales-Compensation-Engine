@@ -1,0 +1,35 @@
+plan_metadata:
+  plan_id: "ENTERPRISE_AE_FY26"
+  plan_name: "Enterprise Account Executive Incentive Plan FY26"
+  effective_period: "2026-FY"
+  currency: "USD"
+
+rules:
+  base_commission_rate: 0.05
+  split_credit_supported: true
+  clawback_policy:
+    enabled: true
+    clawback_window_days: 90
+    reversal_rate: 1.0
+
+  attainment_tiers:
+    - tier_name: "Tier 1 (0% to 80% Quota)"
+      min_attainment_pct: 0.0
+      max_attainment_pct: 0.80
+      multiplier: 1.0
+      flat_bonus: 0.0
+    - tier_name: "Tier 2 (80% to 100% Quota Target)"
+      min_attainment_pct: 0.80
+      max_attainment_pct: 1.00
+      multiplier: 1.25
+      flat_bonus: 0.0
+    - tier_name: "Tier 3 (100% to 150% Over-Performance Accelerator)"
+      min_attainment_pct: 1.00
+      max_attainment_pct: 1.50
+      multiplier: 2.0
+      flat_bonus: 2500.0
+    - tier_name: "Tier 4 (150%+ President Club Super-Accelerator)"
+      min_attainment_pct: 1.50
+      max_attainment_pct: 999.0
+      multiplier: 2.5
+      flat_bonus: 7500.0

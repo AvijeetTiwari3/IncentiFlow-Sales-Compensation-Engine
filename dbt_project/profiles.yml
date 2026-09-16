@@ -1,0 +1,7 @@
+incentiflow_profile:
+  target: dev
+  outputs:
+    dev:
+      type: duckdb
+      path: "../incentiflow_warehouse.duckdb"
+      threads: 4

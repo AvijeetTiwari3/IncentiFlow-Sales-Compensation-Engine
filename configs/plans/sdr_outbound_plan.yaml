@@ -1,0 +1,25 @@
+plan_metadata:
+  plan_id: "SDR_OUTBOUND_FY26"
+  plan_name: "Sales Development Rep Outbound Pipeline Plan"
+  effective_period: "2026-FY"
+  currency: "USD"
+
+rules:
+  base_commission_rate: 0.03
+  split_credit_supported: false
+  clawback_policy:
+    enabled: true
+    clawback_window_days: 60
+    reversal_rate: 1.0
+
+  attainment_tiers:
+    - tier_name: "Base Tier (0% to 100%)"
+      min_attainment_pct: 0.0
+      max_attainment_pct: 1.00
+      multiplier: 1.0
+      flat_bonus: 0.0
+    - tier_name: "Accelerator Tier (>100%)"
+      min_attainment_pct: 1.00
+      max_attainment_pct: 999.0
+      multiplier: 1.75
+      flat_bonus: 1000.0

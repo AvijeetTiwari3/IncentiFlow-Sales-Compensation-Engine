@@ -1,0 +1,28 @@
+version: 2
+
+models:
+  - name: fct_commission_payouts
+    description: "Auditable transaction-level commission calculation mart."
+    columns:
+      - name: payout_id
+        tests:
+          - unique
+          - not_null
+      - name: rep_id
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_hr__sales_reps')
+              field: rep_id
+      - name: net_commission_payout
+        tests:
+          - not_null
+  - name: fct_rep_monthly_performance
+    description: "Rollup mart of executive sales rep quarterly performance and commission earnings."
+    columns:
+      - name: rep_id
+        tests:
+          - unique
+          - not_null
+  - name: audit_reconciliation_ledger
+    description: "Financial balancing ledger proving zero delta across all deals."

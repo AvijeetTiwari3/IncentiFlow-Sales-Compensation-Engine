@@ -1,0 +1,29 @@
+version: 2
+
+sources:
+  - name: raw_sources
+    tables:
+      - name: raw_deals
+      - name: raw_sales_reps
+      - name: raw_deal_splits
+      - name: raw_adjustments
+
+models:
+  - name: stg_crm__deals
+    description: "Sanitized CRM deals and opportunities with stage filtering."
+    columns:
+      - name: deal_id
+        tests:
+          - not_null
+      - name: booking_amount
+        tests:
+          - not_null
+  - name: stg_hr__sales_reps
+    description: "Normalized sales representative profiles and assigned quotas."
+    columns:
+      - name: rep_id
+        tests:
+          - unique
+          - not_null
+  - name: stg_billing__adjustments
+    description: "Refund and clawback adjustments."
