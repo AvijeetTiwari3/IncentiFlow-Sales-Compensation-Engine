@@ -25,7 +25,7 @@
 
 ## 📌 Executive Summary & System Context
 
-In enterprise Go-To-Market (GTM) organizations (e.g., Salesforce, Autodesk, Stripe, Google Cloud), Sales Incentive Compensation is typically the **single largest variable operating expense**, routinely accounting for 8–15% of annual gross billings (\$500M+ annually).
+In enterprise Go-To-Market (GTM) organizations (e.g., Salesforce, Autodesk, Stripe, Google Cloud), Sales Incentive Compensation is typically the **single largest variable operating expense**, routinely accounting for 8–15% of annual gross billings ($500M+ annually).
 
 Despite the mission-critical financial scale, enterprise Incentive Compensation Management (ICM) suffers from systemic engineering bottlenecks:
 
@@ -44,40 +44,28 @@ Despite the mission-critical financial scale, enterprise Incentive Compensation 
 ```mermaid
 flowchart TD
     subgraph Layer1 ["1. Ingestion & Raw Staging Layer"]
-        CRM["Raw CRM Opportunities
-(Salesforce / HubSpot)"] --> STG_RAW[(DuckDB In-Memory OLAP)]
-        HR["Sales Rep & Quota Hierarchy
-(Workday / BambooHR)"] --> STG_RAW
-        BILLING["Disputes & Retroactive Adjustments
-(Stripe / NetSuite)"] --> STG_RAW
+        CRM["Raw CRM Opportunities\n(Salesforce / HubSpot)"] --> STG_RAW[(DuckDB In-Memory OLAP)]
+        HR["Sales Rep & Quota Hierarchy\n(Workday / BambooHR)"] --> STG_RAW
+        BILLING["Disputes & Retroactive Adjustments\n(Stripe / NetSuite)"] --> STG_RAW
     end
 
     subgraph Layer2 ["2. Declarative Rulebook & Engine Core"]
-        YAML["Declarative Plan Config
-(YAML Specifications)"] --> PARSER["Pydantic v2 Plan Parser
-& Boundary Validator"]
-        STG_RAW --> ENGINE["Vectorized Calculation Engine
-(DuckDB Vector Engine)"]
+        YAML["Declarative Plan Config\n(YAML Specifications)"] --> PARSER["Pydantic v2 Plan Parser\n& Boundary Validator"]
+        STG_RAW --> ENGINE["Vectorized Calculation Engine\n(DuckDB Vector Engine)"]
         PARSER --> ENGINE
     end
 
     subgraph Layer3 ["3. Layered dbt Transformation Pipeline"]
-        ENGINE --> STG["staging/stg_crm__deals
-staging/stg_hr__sales_reps
-staging/stg_billing__adjustments"]
-        STG --> INT["intermediate/int_deal_credit_splits
-intermediate/int_cumulative_quota_attainment
-intermediate/int_applied_accelerator_rates"]
-        INT --> MART["marts/fct_commission_payouts
-marts/fct_rep_monthly_performance"]
+        ENGINE --> STG["staging/stg_crm__deals\nstaging/stg_hr__sales_reps\nstaging/stg_billing__adjustments"]
+        STG --> INT["intermediate/int_deal_credit_splits\nintermediate/int_cumulative_quota_attainment\nintermediate/int_applied_accelerator_rates"]
+        INT --> MART["marts/fct_commission_payouts\nmarts/fct_rep_monthly_performance"]
         INT --> LEDGER["marts/audit_reconciliation_ledger"]
     end
 
     subgraph Layer4 ["4. Financial Auditing & SOX Validation"]
         MART --> AUDIT["Financial Audit Assertion Runner"]
         LEDGER --> AUDIT
-        AUDIT --> LEDGER_OUT["SOX Compliance Certificate
-& Cryptographic Lineage Signature"]
+        AUDIT --> LEDGER_OUT["SOX Compliance Certificate\n& Cryptographic Lineage Signature"]
     end
 ```
 
@@ -88,29 +76,31 @@ marts/fct_rep_monthly_performance"]
 ### 1. Multi-Rep Attributed Booking Allocation
 For any deal $D_j$ with gross booking amount $B_j$ and a set of participating sales representatives $R_j$, the attributed booking $A_{i,j}$ for rep $i \in R_j$ satisfies the strict **Conservation of Value** principle:
 
-$$\sum_{i \in R_j} A_{i,j} = B_j \quad 	ext{where} \quad \sum_{i \in R_j} S_{i,j} = 1.0 \quad 	ext{and} \quad A_{i,j} = B_j 	imes S_{i,j}$$
+$$\sum_{i \in R_j} A_{i,j} = B_j \quad \text{where} \quad \sum_{i \in R_j} S_{i,j} = 1.0 \quad \text{and} \quad A_{i,j} = B_j \cdot S_{i,j}$$
 
 ### 2. Period-To-Date (PTD) Running Quota Attainment
-For representative $i$ with assigned quarterly quota $Q_i$, running attainment percentage $lpha_{i,t}$ at deal timestamp $t$ is computed via vectorized window aggregation:
+For representative $i$ with assigned quarterly quota $Q_i$, running attainment percentage $\alpha_{i,t}$ at deal timestamp $t$ is computed via vectorized window aggregation:
 
-$$lpha_{i,t} = rac{\sum_{	au \le t} A_{i,	au}}{Q_i}$$
+$$\alpha_{i,t} = \frac{\sum_{\tau \le t} A_{i,\tau}}{Q_i}$$
 
 ### 3. Non-Linear Accelerator Rate Multiplier
-The effective commission rate $r_{	ext{eff}}(lpha)$ is governed by a step-wise multiplier function $M(lpha)$ over baseline rate $r_{	ext{base}}$:
+The effective commission rate $r_{\text{eff}}(\alpha)$ is governed by a step-wise multiplier function $M(\alpha)$ over baseline rate $r_{\text{base}}$:
 
-$$r_{	ext{eff}}(lpha) = r_{	ext{base}} 	imes M(lpha) \quad 	ext{where} \quad M(lpha) = egin{cases} 
-1.00 & 	ext{if } 0.00 \le lpha < 0.80 	ext{ (Base Tier)} \
-1.25 & 	ext{if } 0.80 \le lpha < 1.00 	ext{ (Target Tier)} \
-2.00 & 	ext{if } 1.00 \le lpha < 1.50 	ext{ (Accelerator Tier)} \
-2.50 & 	ext{if } lpha \ge 1.50 	ext{ (President's Club Super-Accelerator)}
+$$r_{\text{eff}}(\alpha) = r_{\text{base}} \cdot M(\alpha)$$
+
+$$\text{where } M(\alpha) = \begin{cases} 
+1.00 & \text{if } 0.00 \le \alpha < 0.80 \text{ (Base Tier)} \\
+1.25 & \text{if } 0.80 \le \alpha < 1.00 \text{ (Target Tier)} \\
+2.00 & \text{if } 1.00 \le \alpha < 1.50 \text{ (Accelerator Tier)} \\
+2.50 & \text{if } \alpha \ge 1.50 \text{ (President's Club Super-Accelerator)}
 \end{cases}$$
 
 ### 4. Net Payout & Asynchronous Clawback Deductions
 Given a retroactive adjustment indicator $C_j \in \{0, 1\}$ (e.g., customer refund within 90 days), the net payout $P_{i,j}$ is:
 
-$$P_{i,j} = \left(A_{i,j} 	imes r_{	ext{eff}}(lpha_{i,t})ight) - \left(C_j 	imes A_{i,j} 	imes r_{	ext{eff}}(lpha_{i,t})ight) + K(lpha_{i,t})$$
+$$P_{i,j} = (A_{i,j} \cdot r_{\text{eff}}(\alpha_{i,t})) - (C_j \cdot A_{i,j} \cdot r_{\text{eff}}(\alpha_{i,t})) + K(\alpha_{i,t})$$
 
-*(where $K(lpha)$ represents fixed milestone kicker bonuses).*
+*(where $K(\alpha_{i,t})$ represents fixed milestone kicker bonuses).*
 
 ---
 
@@ -211,7 +201,7 @@ To guarantee enterprise audit readiness under Sarbanes-Oxley (SOX) Section 404 s
 ### Cryptographic Calculation Lineage
 Every payout transaction record is hashed via SHA-256 to ensure tamper-proof data governance:
 
-$$	ext{Signature} = 	ext{SHA-256}\Big(	ext{payout\_id} \parallel 	ext{deal\_id} \parallel 	ext{rep\_id} \parallel 	ext{attributed\_booking} \parallel 	ext{effective\_rate} \parallel 	ext{net\_payout}\Big)$$
+$$\text{Signature} = \text{SHA-256}\Big(\text{payout\_id} \parallel \text{deal\_id} \parallel \text{rep\_id} \parallel \text{attributed\_booking} \parallel \text{effective\_rate} \parallel \text{net\_payout}\Big)$$
 
 ---
 
