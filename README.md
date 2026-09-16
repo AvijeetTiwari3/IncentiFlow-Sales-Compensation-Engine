@@ -84,9 +84,9 @@ For representative $i$ with assigned quarterly quota $Q_i$, running attainment p
 $$\alpha_{i,t} = \frac{\sum_{\tau \le t} A_{i,\tau}}{Q_i}$$
 
 ### 3. Non-Linear Accelerator Rate Multiplier
-The effective commission rate $r_{\text{eff}}(\alpha)$ is governed by a step-wise multiplier function $M(\alpha)$ over baseline rate $r_{\text{base}}$:
+The effective commission rate $r_{\mathrm{eff}}(\alpha)$ is governed by a step-wise multiplier function $M(\alpha)$ over baseline rate $r_{\mathrm{base}}$:
 
-$$r_{\text{eff}}(\alpha) = r_{\text{base}} \cdot M(\alpha)$$
+$$r_{\mathrm{eff}}(\alpha) = r_{\mathrm{base}} \cdot M(\alpha)$$
 
 $$\text{where } M(\alpha) = \begin{cases} 
 1.00 & \text{if } 0.00 \le \alpha < 0.80 \text{ (Base Tier)} \\
@@ -98,7 +98,7 @@ $$\text{where } M(\alpha) = \begin{cases}
 ### 4. Net Payout & Asynchronous Clawback Deductions
 Given a retroactive adjustment indicator $C_j \in \{0, 1\}$ (e.g., customer refund within 90 days), the net payout $P_{i,j}$ is:
 
-$$P_{i,j} = (A_{i,j} \cdot r_{\text{eff}}(\alpha_{i,t})) - (C_j \cdot A_{i,j} \cdot r_{\text{eff}}(\alpha_{i,t})) + K(\alpha_{i,t})$$
+$$P_{i,j} = (A_{i,j} \cdot r_{\mathrm{eff}}(\alpha_{i,t})) - (C_j \cdot A_{i,j} \cdot r_{\mathrm{eff}}(\alpha_{i,t})) + K(\alpha_{i,t})$$
 
 *(where $K(\alpha_{i,t})$ represents fixed milestone kicker bonuses).*
 
@@ -201,7 +201,7 @@ To guarantee enterprise audit readiness under Sarbanes-Oxley (SOX) Section 404 s
 ### Cryptographic Calculation Lineage
 Every payout transaction record is hashed via SHA-256 to ensure tamper-proof data governance:
 
-$$\text{Signature} = \text{SHA-256}\Big(\text{payout\_id} \parallel \text{deal\_id} \parallel \text{rep\_id} \parallel \text{attributed\_booking} \parallel \text{effective\_rate} \parallel \text{net\_payout}\Big)$$
+$$\mathrm{AuditSignature} = \operatorname{SHA-256}\left(\mathrm{PayoutID} \parallel \mathrm{DealID} \parallel \mathrm{RepID} \parallel \mathrm{AttributedBooking} \parallel \mathrm{EffectiveRate} \parallel \mathrm{NetPayout}\right)$$
 
 ---
 
