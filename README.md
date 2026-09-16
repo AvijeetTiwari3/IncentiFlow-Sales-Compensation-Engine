@@ -201,7 +201,7 @@ To guarantee enterprise audit readiness under Sarbanes-Oxley (SOX) Section 404 s
 ### Cryptographic Calculation Lineage
 Every payout transaction record is hashed via SHA-256 to ensure tamper-proof data governance:
 
-$$\mathrm{AuditSignature} = \operatorname{SHA-256}\left(\mathrm{PayoutID} \parallel \mathrm{DealID} \parallel \mathrm{RepID} \parallel \mathrm{AttributedBooking} \parallel \mathrm{EffectiveRate} \parallel \mathrm{NetPayout}\right)$$
+$$\mathrm{AuditSignature} = \mathrm{SHA256}\left(\mathrm{PayoutID} \parallel \mathrm{DealID} \parallel \mathrm{RepID} \parallel \mathrm{AttributedBooking} \parallel \mathrm{EffectiveRate} \parallel \mathrm{NetPayout}\right)$$
 
 ---
 
